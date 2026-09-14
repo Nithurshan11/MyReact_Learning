@@ -33,9 +33,31 @@ Users will be able to:
 
 Still to do: real page navigation, `useState`, seat selection, booking.
 
-## What I have learned in React
+## Topics I have learned (checklist)
 
-### Components
+| Topic | What it means | Where I used it |
+|-------|---------------|-----------------|
+| **Component** | A function that returns UI | `NavBar`, `Footer`, `MovieCard`, `App` |
+| **JSX** | HTML-like code inside React | every component `return` |
+| **Props** | Data sent from parent → child | `App` sends movie data into `MovieCard` |
+| **Array** | A list of values in `[ ]` | `movies` array, `actors` array |
+| **Object** | One item with fields like `name`, `rating` | each movie inside the array |
+| **List + `.map()`** | Loop an array and show UI for each item | 4 movie cards from `movies.map(...)` |
+| **`key`** | Unique id for each list item | `key={movie.id}` |
+| **`.join()`** | Turn an array into one string | `actors.join(', ')` |
+| **Import / export** | Share code between files | `export default` + `import` |
+| **Parent / child** | One component renders another | `App` → `NavBar`, `MovieCard`, `Footer` |
+| **Fragment `<>`** | Wrapper with no extra HTML tag | around navbar + main + footer |
+| **`className`** | CSS class name in JSX | `className="movie-card"` |
+| **TypeScript type** | Describe the shape of props | `MovieCardProps` |
+| **CSS per component** | Styles next to the component | `NavBar.css`, `Footer.css`, `MovieCard.css` |
+| **Git / GitHub** | Save and upload code | commit, push, `pull --rebase` |
+
+Not learned yet: **`useState`**, **hooks**, page routing.
+
+## What I have learned in React (details)
+
+### 1. Components
 
 A component is a function that returns UI. I built:
 
@@ -44,28 +66,28 @@ A component is a function that returns UI. I built:
 - `MovieCard` — one reusable movie card
 - `App` — parent that puts everything together
 
-### JSX
+### 2. JSX
 
 The HTML-looking code inside `return (...)` is JSX. React turns it into real elements in the browser.
 
-### `className` instead of `class`
+### 3. `className` instead of `class`
 
 In JSX you write `className="navbar"` because `class` already belongs to JavaScript.
 
-### Import and export
+### 4. Import and export
 
 - `export default MovieCard` shares the component from its file
 - `App.tsx` imports components and renders them like `<NavBar />`, `<MovieCard />`, `<Footer />`
 
-### Parent and child
+### 5. Parent and child
 
 `App` is the parent. `NavBar`, `MovieCard`, and `Footer` are children.
 
-### Fragments
+### 6. Fragments
 
 `<>...</>` wraps elements without adding an extra HTML tag.
 
-### CSS with a component
+### 7. CSS with a component
 
 Each component can have its own CSS file, for example:
 
@@ -73,13 +95,13 @@ Each component can have its own CSS file, for example:
 - `import './Footer.css'`
 - `import './MovieCard.css'`
 
-### File names must match exactly
+### 8. File names must match exactly
 
 The file is `NavBar.tsx`. The import must be `'./components/NavBar'`, and the tag must be `<NavBar />`.
 
 `Navbar` and `NavBar` are different to TypeScript.
 
-### Props
+### 9. Props
 
 Props are data passed from parent to child.
 
@@ -98,9 +120,32 @@ Inside `MovieCard`, I read them as `props.name`, `props.rating`, and so on.
 
 I also learned to define a TypeScript type for props (`MovieCardProps`) so each prop has a clear type.
 
-### Lists and `.map()`
+### 10. Array
 
-Movies are stored in an array. `.map()` turns each movie object into a `<MovieCard />`.
+An **array** holds many items in order, written with `[ ]`.
+
+I used two kinds:
+
+- `movies` — array of movie objects (4 movies)
+- `actors` — array of strings, like `["Christian Bale", "Heath Ledger"]`
+
+### 11. Object
+
+Each movie is an **object** with fields:
+
+```tsx
+{
+  id: 1,
+  name: "The Dark Knight",
+  rating: 9.0,
+  gender: "Action",
+  actors: ["Christian Bale", "Heath Ledger", "Aaron Eckhart"],
+}
+```
+
+### 12. List and `.map()`
+
+To show many cards, I loop the array with `.map()` and return one component per item:
 
 ```tsx
 {movies.map((movie) => (
@@ -108,15 +153,20 @@ Movies are stored in an array. `.map()` turns each movie object into a `<MovieCa
 ))}
 ```
 
-### `key` in lists
+- `movies` = the full array
+- `movie` = one item in that loop
+
+### 13. `key` in lists
 
 React needs a unique `key` for each item in a list, like `key={movie.id}`.
 
-### Arrays and `.join()`
+### 14. `.join()`
 
-Actors are stored as a string array. `.join(', ')` turns them into readable text on the page.
+Actors are a string array. `.join(', ')` turns them into readable text:
 
-### Semantic HTML still matters
+`"Christian Bale, Heath Ledger, Aaron Eckhart"`
+
+### 15. Semantic HTML
 
 - `<nav>` means navigation
 - `<footer>` means the page footer
