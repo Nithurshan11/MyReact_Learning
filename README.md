@@ -1,4 +1,4 @@
-# CineBook — Movie Ticket Booking
+# CineBook - Movie Ticket Booking
 
 I am learning **React** by building a movie ticket booking website called **CineBook**.
 
@@ -15,7 +15,7 @@ Users will be able to:
 
 ## Current progress
 
-**Step 1 — Navbar (done)**
+**Step 1 - Navbar (done)**
 
 - Logo: **CineBook**
 - Links: **Home**, **About**, **Contact**
