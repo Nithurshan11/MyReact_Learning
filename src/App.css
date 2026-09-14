@@ -1,0 +1,8 @@
+.main-section {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 32px;
+  background: #f0f0f0;
+
+}
