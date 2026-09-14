@@ -38,7 +38,14 @@ Users will be able to:
 - **Reset movies** puts `initialMovies` back
 - The page shows `Total movies: {movies.length}` and updates when state changes
 
-Still to do: Book button on each card, page navigation, seat selection, booking.
+**Book button (done)**
+
+- Each `MovieCard` has a **BOOK Now** button
+- Clicking it calls a function prop: `onBook`
+- `App` stores the chosen title in `bookedMovie` state
+- The page shows `you Booked: ...` after a click
+
+Still to do: page navigation, seat selection, full booking flow.
 
 ## Topics I have learned (checklist)
 
@@ -63,8 +70,12 @@ Still to do: Book button on each card, page navigation, seat selection, booking.
 | **`useState`** | Store data that can change and re-render the UI | `const [movies, setMovies] = useState(...)` |
 | **State** | Current value React remembers | `movies` |
 | **Setter** | Function that updates state | `setMovies([])` / `setMovies(initialMovies)` |
-| **`onClick`** | Run a function when a button is clicked | Clear / Reset buttons |
-| **Event handler** | Function tied to a user action | `handleClear`, `handleReset` |
+| **`onClick`** | Run a function when a button is clicked | Clear / Reset / BOOK Now |
+| **Event handler** | Function tied to a user action | `handleClear`, `handleReset`, `handleBook` |
+| **Callback prop** | Parent passes a function to the child | `onBook={handleBook}` |
+| **Function prop type** | TypeScript type for a function prop | `onBook: (movieName: string) => void` |
+| **Multiple state** | More than one `useState` in one component | `movies` + `bookedMovie` |
+| **Conditional render** | Show UI only when a condition is true | `bookedMovie !== '' && (...)` |
 
 Not learned yet: page routing, seat selection, full booking flow.
 
@@ -236,6 +247,61 @@ function handleReset() {
 
 `MovieCard` still uses **props**. `App` now owns the movie list as **state**.
 
+### 19. Book button and callback props
+
+The **BOOK Now** button is inside `MovieCard`, but the “which movie did I book?” memory lives in `App`.
+
+So `App` passes a **function** as a prop:
+
+```tsx
+<MovieCard
+  ...
+  onBook={handleBook}
+/>
+```
+
+Inside the card:
+
+```tsx
+<button onClick={() => props.onBook(props.name)}>
+  BOOK Now
+</button>
+```
+
+Flow:
+
+1. User clicks **BOOK Now**
+2. Child calls `props.onBook(props.name)`
+3. Parent runs `handleBook(movieName)`
+4. Parent updates state with `setBookedMovie(movieName)`
+5. UI shows the booked movie message
+
+This is called a **callback prop** — the child calls back to the parent.
+
+### 20. Multiple pieces of state
+
+One component can use `useState` more than once:
+
+```tsx
+const [movies, setMovies] = useState(initialMovies);
+const [bookedMovie, setBookedMovie] = useState('');
+```
+
+- `movies` → list of cards
+- `bookedMovie` → name of the movie the user booked
+
+### 21. Conditional rendering
+
+Show the booking message only after someone clicks Book:
+
+```tsx
+{bookedMovie !== '' && (
+  <p>you Booked: {bookedMovie}</p>
+)}
+```
+
+If `bookedMovie` is still `''`, nothing is shown.
+
 ## Mistakes I fixed (important learning)
 
 ### 1. `movie` vs `movies` inside `.map()`
@@ -268,7 +334,7 @@ That means: take GitHub changes first, put my commits on top, then push.
 
 ```
 src/
-  App.tsx                 → main app, useState for movies, maps cards
+  App.tsx                 → useState for movies + bookedMovie, maps cards
   App.css                 → main section / grid / Clear-Reset buttons
   main.tsx                → starts React and mounts App
   components/
@@ -276,7 +342,7 @@ src/
     NavBar.css            → navbar styles
     Footer.tsx            → footer component
     Footer.css            → footer styles
-    MovieCard.tsx         → one movie card (props)
+    MovieCard.tsx         → movie card + BOOK Now (onBook callback)
     MovieCard.css         → movie card styles
 ```
 
@@ -291,11 +357,10 @@ Then open the local URL (usually `http://localhost:5173`).
 
 ## Next learning steps
 
-1. Book button on each movie card (`onClick` + props callback)
-2. Home, About, and Contact pages
-3. Clicking navbar links to switch pages
-4. Seat selection
-5. Booking a ticket
+1. Home, About, and Contact pages
+2. Clicking navbar links to switch pages
+3. Seat selection
+4. Booking a ticket
 
 ## Stack
 

@@ -41,6 +41,7 @@ const initialMovies=[
 function App(){
 
   const [movies, setMovies]=useState(initialMovies);
+  const [bookedMovie , setBookedMovie] = useState('');
 
   function handleClear(){
 
@@ -49,6 +50,10 @@ function App(){
 
   function handleReset(){
     setMovies(initialMovies);
+  }
+
+  function handleBook(movieName: string){
+    setBookedMovie(movieName);
   }
 
   return(
@@ -63,6 +68,12 @@ function App(){
        <button onClick={handleReset}>Reset Movies</button>
       </div>
 
+      {
+        bookedMovie !== '' &&(
+          <p className="Booked-message">you Booked: {bookedMovie}</p>
+        )
+      }
+
       {movies.map((movie) =>(
     <MovieCard 
      key={movie.id}
@@ -70,6 +81,7 @@ function App(){
      rating={movie.rating}
      gender={movie.gender}
      actors={movie.actors}
+     onBook={handleBook}
     />
     ))}
 

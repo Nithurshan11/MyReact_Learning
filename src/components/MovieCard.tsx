@@ -7,6 +7,7 @@ type MovieCardProps = {
     rating: number;
     actors: string[];
     gender: string;
+    onBook: (movieName: string)=> void;
 
 };
 
@@ -20,6 +21,12 @@ function MovieCard(props: MovieCardProps) {
             <p className="movie-gender">{props.gender}</p>
             <p className="movie-actors">Actors:{props.actors.join(", ")}</p>
 
+            <button
+              className="book-button"
+              onClick={()=> props.onBook(props.name)}
+              >
+                BOOK Now
+                </button>
 
         
         </div>
