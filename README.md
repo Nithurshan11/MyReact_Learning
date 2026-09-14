@@ -2,7 +2,7 @@
 
 I am learning **React** by building a movie ticket booking website called **CineBook**.
 
-The goal is to make a real app step by step: navbar, pages, movie list, seats, and booking. I type the code myself so I understand each piece.
+The goal is to make a real app step by step: navbar, footer, movie cards, pages, seats, and booking. I type the code myself so I understand each piece.
 
 ## What this app will do
 
@@ -15,19 +15,34 @@ Users will be able to:
 
 ## Current progress
 
-**Step 1 - Navbar (done)**
+**Navbar (done)**
 
 - Logo: **CineBook**
 - Links: **Home**, **About**, **Contact**
-- Styled with a dark bar and yellow hover color
 
-The links do not change pages yet. That is the next step.
+**Footer (done)**
+
+- Logo, links, and copyright text
+
+**Movie cards (done)**
+
+- 4 movie cards shown with `.map()`
+- Each card shows: name, rating, genre, and actors
+- Data comes from a `movies` array in `App.tsx`
+- `MovieCard` receives that data through **props**
+
+Still to do: real page navigation, `useState`, seat selection, booking.
 
 ## What I have learned in React
 
 ### Components
 
-A component is a function that returns UI. `NavBar` is one piece of the page. `App` is the main component that puts pieces together.
+A component is a function that returns UI. I built:
+
+- `NavBar` — top navigation
+- `Footer` — bottom section
+- `MovieCard` — one reusable movie card
+- `App` — parent that puts everything together
 
 ### JSX
 
@@ -39,12 +54,12 @@ In JSX you write `className="navbar"` because `class` already belongs to JavaScr
 
 ### Import and export
 
-- `export default NavBar` shares the component from its file
-- `App.tsx` imports it and renders `<NavBar />`
+- `export default MovieCard` shares the component from its file
+- `App.tsx` imports components and renders them like `<NavBar />`, `<MovieCard />`, `<Footer />`
 
 ### Parent and child
 
-`App` is the parent. `NavBar` is the child. Later, Home / About / Contact pages will also be children of `App`.
+`App` is the parent. `NavBar`, `MovieCard`, and `Footer` are children.
 
 ### Fragments
 
@@ -52,29 +67,104 @@ In JSX you write `className="navbar"` because `class` already belongs to JavaScr
 
 ### CSS with a component
 
-`import './NavBar.css'` loads styles for the navbar. `display: flex` puts the logo on the left and the links on the right.
+Each component can have its own CSS file, for example:
+
+- `import './NavBar.css'`
+- `import './Footer.css'`
+- `import './MovieCard.css'`
 
 ### File names must match exactly
 
 The file is `NavBar.tsx`. The import must be `'./components/NavBar'`, and the tag must be `<NavBar />`.
 
-`Navbar` and `NavBar` are different to TypeScript. That mismatch caused an error even though Windows still found the file.
+`Navbar` and `NavBar` are different to TypeScript.
+
+### Props
+
+Props are data passed from parent to child.
+
+Example:
+
+```tsx
+<MovieCard
+  name={movie.name}
+  rating={movie.rating}
+  gender={movie.gender}
+  actors={movie.actors}
+/>
+```
+
+Inside `MovieCard`, I read them as `props.name`, `props.rating`, and so on.
+
+I also learned to define a TypeScript type for props (`MovieCardProps`) so each prop has a clear type.
+
+### Lists and `.map()`
+
+Movies are stored in an array. `.map()` turns each movie object into a `<MovieCard />`.
+
+```tsx
+{movies.map((movie) => (
+  <MovieCard key={movie.id} ... />
+))}
+```
+
+### `key` in lists
+
+React needs a unique `key` for each item in a list, like `key={movie.id}`.
+
+### Arrays and `.join()`
+
+Actors are stored as a string array. `.join(', ')` turns them into readable text on the page.
 
 ### Semantic HTML still matters
 
-- `<nav>` means this is navigation
+- `<nav>` means navigation
+- `<footer>` means the page footer
+- `<main>` means the main content
 - `<ul>` / `<li>` is a list of links
-- `<a href="#home">` is a link (pages come next)
+
+## Mistakes I fixed (important learning)
+
+### 1. `movie` vs `movies` inside `.map()`
+
+Inside `.map((movie) => ...)`, I must use **`movie`** (one item), not **`movies`** (the whole array).
+
+Using `movies.actors` made `actors` become `undefined`, then `.join()` crashed and the page went blank.
+
+### 2. Empty file on disk
+
+If `MovieCard.tsx` is open in the editor but not saved, the real file can be **0 bytes**. Vite loads the empty file, the import fails, and the page goes blank. Always **save** (`Ctrl + S`).
+
+### 3. Import casing
+
+`Navbar` and `NavBar` look the same on Windows, but TypeScript treats them as different names.
+
+## Git and GitHub (what I learned)
+
+- `git init`, `git add .`, `git commit`, `git push` to upload code
+- If push is rejected because GitHub has commits I do not have locally, run:
+
+```bash
+git pull --rebase origin main
+git push
+```
+
+That means: take GitHub changes first, put my commits on top, then push.
 
 ## Project files so far
 
 ```
 src/
-  App.tsx                 → main app, renders the navbar
+  App.tsx                 → main app, movies array, maps cards
+  App.css                 → main section / grid layout
+  main.tsx                → starts React and mounts App
   components/
     NavBar.tsx            → navbar component
     NavBar.css            → navbar styles
-  main.tsx                → starts React and mounts App
+    Footer.tsx            → footer component
+    Footer.css            → footer styles
+    MovieCard.tsx         → one movie card (props)
+    MovieCard.css         → movie card styles
 ```
 
 ## How to run
@@ -88,9 +178,9 @@ Then open the local URL (usually `http://localhost:5173`).
 
 ## Next learning steps
 
-1. Home, About, and Contact pages
-2. Clicking navbar links to switch pages
-3. A movie list on Home
+1. `useState` hook (store movies in state)
+2. Home, About, and Contact pages
+3. Clicking navbar links to switch pages
 4. Seat selection
 5. Booking a ticket
 
