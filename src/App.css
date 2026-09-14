@@ -6,3 +6,21 @@
   background: #f0f0f0;
 
 }
+
+.movie-count {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-weight: 600;
+}
+
+.movie-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.movie-actions button {
+  padding: 8px 14px;
+  cursor: pointer;
+}

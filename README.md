@@ -28,10 +28,17 @@ Users will be able to:
 
 - 4 movie cards shown with `.map()`
 - Each card shows: name, rating, genre, and actors
-- Data comes from a `movies` array in `App.tsx`
 - `MovieCard` receives that data through **props**
 
-Still to do: real page navigation, `useState`, seat selection, booking.
+**useState / hooks (done)**
+
+- Movies are stored in **state** with `useState`
+- Starting data lives in `initialMovies`
+- **Clear movies** sets the list to `[]`
+- **Reset movies** puts `initialMovies` back
+- The page shows `Total movies: {movies.length}` and updates when state changes
+
+Still to do: Book button on each card, page navigation, seat selection, booking.
 
 ## Topics I have learned (checklist)
 
@@ -52,8 +59,14 @@ Still to do: real page navigation, `useState`, seat selection, booking.
 | **TypeScript type** | Describe the shape of props | `MovieCardProps` |
 | **CSS per component** | Styles next to the component | `NavBar.css`, `Footer.css`, `MovieCard.css` |
 | **Git / GitHub** | Save and upload code | commit, push, `pull --rebase` |
+| **Hook** | Special React function that starts with `use` | `useState` |
+| **`useState`** | Store data that can change and re-render the UI | `const [movies, setMovies] = useState(...)` |
+| **State** | Current value React remembers | `movies` |
+| **Setter** | Function that updates state | `setMovies([])` / `setMovies(initialMovies)` |
+| **`onClick`** | Run a function when a button is clicked | Clear / Reset buttons |
+| **Event handler** | Function tied to a user action | `handleClear`, `handleReset` |
 
-Not learned yet: **`useState`**, **hooks**, page routing.
+Not learned yet: page routing, seat selection, full booking flow.
 
 ## What I have learned in React (details)
 
@@ -173,6 +186,56 @@ Actors are a string array. `.join(', ')` turns them into readable text:
 - `<main>` means the main content
 - `<ul>` / `<li>` is a list of links
 
+### 16. Hooks and `useState`
+
+A **hook** is a special React function. Names start with `use`.
+
+I imported it like this:
+
+```tsx
+import { useState } from 'react';
+```
+
+Then inside `App`:
+
+```tsx
+const [movies, setMovies] = useState(initialMovies);
+```
+
+- `initialMovies` = starting data (normal array)
+- `movies` = current state value (what the UI shows)
+- `setMovies` = function to change that value
+
+When I call `setMovies(...)`, React updates the data and **re-renders** the page.
+
+### 17. Updating state with buttons
+
+```tsx
+function handleClear() {
+  setMovies([]);
+}
+
+function handleReset() {
+  setMovies(initialMovies);
+}
+```
+
+```tsx
+<button onClick={handleClear}>Clear Movies</button>
+<button onClick={handleReset}>Reset Movies</button>
+```
+
+- **Clear** → empty array → 0 cards
+- **Reset** → put the original 4 movies back
+- `{movies.length}` updates automatically because it reads from state
+
+### 18. Props vs state (simple rule)
+
+- **Props** = data sent into a child (parent → child)
+- **State** = data owned by a component that can change over time
+
+`MovieCard` still uses **props**. `App` now owns the movie list as **state**.
+
 ## Mistakes I fixed (important learning)
 
 ### 1. `movie` vs `movies` inside `.map()`
@@ -205,8 +268,8 @@ That means: take GitHub changes first, put my commits on top, then push.
 
 ```
 src/
-  App.tsx                 → main app, movies array, maps cards
-  App.css                 → main section / grid layout
+  App.tsx                 → main app, useState for movies, maps cards
+  App.css                 → main section / grid / Clear-Reset buttons
   main.tsx                → starts React and mounts App
   components/
     NavBar.tsx            → navbar component
@@ -228,7 +291,7 @@ Then open the local URL (usually `http://localhost:5173`).
 
 ## Next learning steps
 
-1. `useState` hook (store movies in state)
+1. Book button on each movie card (`onClick` + props callback)
 2. Home, About, and Contact pages
 3. Clicking navbar links to switch pages
 4. Seat selection
