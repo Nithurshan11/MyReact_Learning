@@ -45,7 +45,15 @@ Users will be able to:
 - `App` stores the chosen title in `bookedMovie` state
 - The page shows `you Booked: ...` after a click
 
-Still to do: page navigation, seat selection, full booking flow.
+**Pages + navbar navigation (done — learned today)**
+
+- Page components: `Home`, `About`, `Contact`
+- `App` keeps `page` state: `'home' | 'about' | 'contact'`
+- Navbar uses `onNavigate` to change the page
+- Movie list UI moved into `Home` (props from `App`)
+- Booking state stays in `App`, so it survives page switches
+
+Still to do: seat selection, full booking flow (and later real URL routing if needed).
 
 ## Topics I have learned (checklist)
 
@@ -63,7 +71,7 @@ Still to do: page navigation, seat selection, full booking flow.
 | **Parent / child** | One component renders another | `App` → `NavBar`, `MovieCard`, `Footer` |
 | **Fragment `<>`** | Wrapper with no extra HTML tag | around navbar + main + footer |
 | **`className`** | CSS class name in JSX | `className="movie-card"` |
-| **TypeScript type** | Describe the shape of props | `MovieCardProps` |
+| **TypeScript `type`** | Define what kind of data something should contain | `MovieCardProps`, `HomeProps`, `Movie` |
 | **CSS per component** | Styles next to the component | `NavBar.css`, `Footer.css`, `MovieCard.css` |
 | **Git / GitHub** | Save and upload code | commit, push, `pull --rebase` |
 | **Hook** | Special React function that starts with `use` | `useState` |
@@ -74,10 +82,16 @@ Still to do: page navigation, seat selection, full booking flow.
 | **Event handler** | Function tied to a user action | `handleClear`, `handleReset`, `handleBook` |
 | **Callback prop** | Parent passes a function to the child | `onBook={handleBook}` |
 | **Function prop type** | TypeScript type for a function prop | `onBook: (movieName: string) => void` |
-| **Multiple state** | More than one `useState` in one component | `movies` + `bookedMovie` |
-| **Conditional render** | Show UI only when a condition is true | `bookedMovie !== '' && (...)` |
+| **Multiple state** | More than one `useState` in one component | `movies` + `bookedMovie` + `page` |
+| **Conditional render** | Show UI only when a condition is true | `bookedMovie !== '' && (...)` / `page === 'home' && ...` |
+| **Page components** | Separate screens of the app | `Home`, `About`, `Contact` |
+| **Page state** | Remember which screen is active | `const [page, setPage] = useState('home')` |
+| **`onNavigate`** | Callback to switch pages from navbar | `props.onNavigate('about')` |
+| **`preventDefault`** | Stop the browser default link jump | `e.preventDefault()` on nav clicks |
+| **Lift state up** | Keep shared data in the parent | movies + bookedMovie + page in `App` |
+| **Props parameter** | Function must receive `props` to use them | `function NavBar(props: NavBarProps)` |
 
-Not learned yet: page routing, seat selection, full booking flow.
+Not learned yet: React Router (URL routing), seat selection, full booking flow.
 
 ## What I have learned in React (details)
 
@@ -85,9 +99,12 @@ Not learned yet: page routing, seat selection, full booking flow.
 
 A component is a function that returns UI. I built:
 
-- `NavBar` — top navigation
+- `NavBar` — top navigation (switches pages)
 - `Footer` — bottom section
 - `MovieCard` — one reusable movie card
+- `Home` — movie list page
+- `About` — about page
+- `Contact` — contact page
 - `App` — parent that puts everything together
 
 ### 2. JSX
@@ -143,6 +160,20 @@ Example:
 Inside `MovieCard`, I read them as `props.name`, `props.rating`, and so on.
 
 I also learned to define a TypeScript type for props (`MovieCardProps`) so each prop has a clear type.
+
+In TypeScript, `type` is used to define what kind of data something should contain.
+
+Example:
+
+```tsx
+type MovieCardProps = {
+  name: string;
+  rating: number;
+  actors: string[];
+  gender: string;
+  onBook: (movieName: string) => void;
+};
+```
 
 ### 10. Array
 
@@ -302,6 +333,65 @@ Show the booking message only after someone clicks Book:
 
 If `bookedMovie` is still `''`, nothing is shown.
 
+### 22. Page components (learned today)
+
+I created three page components:
+
+- `Home` — movies, clear/reset, book message
+- `About` — short text about CineBook
+- `Contact` — email and phone
+
+`App` decides which one to show.
+
+### 23. Page state + switching screens
+
+```tsx
+const [page, setPage] = useState('home');
+
+function handleNavigate(nextpage: string) {
+  setPage(nextpage);
+}
+```
+
+```tsx
+{page === 'home' && <Home ... />}
+{page === 'about' && <About />}
+{page === 'contact' && <Contact />}
+```
+
+### 24. Navbar `onNavigate` + `preventDefault`
+
+```tsx
+<a
+  href="#about"
+  onClick={(e) => {
+    e.preventDefault();
+    props.onNavigate('about');
+  }}
+>
+  About
+</a>
+```
+
+- `onNavigate` is a callback prop (same idea as `onBook`)
+- `e.preventDefault()` stops the `#about` link from jumping the page
+
+### 25. Lift state up
+
+Movies, booked movie, and current page live in `App`.
+
+That way:
+
+- switching Home → About → Home does not lose the booking
+- `Home` only displays data; `App` owns the data
+
+### 26. `type` must match how you use the data
+
+In TypeScript, `type` is used to define what kind of data something should contain.
+
+If `bookedMovie` is one movie name, type it as `string`, not `string[]`.  
+Comparing `string[]` to `''` causes a TypeScript error.
+
 ## Mistakes I fixed (important learning)
 
 ### 1. `movie` vs `movies` inside `.map()`
@@ -317,6 +407,54 @@ If `MovieCard.tsx` is open in the editor but not saved, the real file can be **0
 ### 3. Import casing
 
 `Navbar` and `NavBar` look the same on Windows, but TypeScript treats them as different names.
+
+### 4. `props` not received (NavBar)
+
+I defined `type NavBarProps`, but wrote `function NavBar()` with no parameter.
+
+Then `props.onNavigate(...)` failed with **Cannot find name 'props'**.
+
+Fix:
+
+```tsx
+function NavBar(props: NavBarProps) {
+```
+
+### 5. `string[]` vs `string`
+
+I typed `bookedMovies: string[]` but compared it to `''`.
+
+Arrays and strings have no overlap, so TypeScript error.
+
+Fix: use `bookedMovie: string` for one movie name.
+
+### 6. Missing `}` on a function
+
+I forgot to close `handleNavigate` before `return`.
+
+Then the `return` was inside `handleNavigate`, and `App` looked broken.
+
+Every `function ... {` needs a matching `}` before the next function or `return`.
+
+### 7. `onClick` needs `{ }` for multiple lines
+
+Wrong:
+
+```tsx
+onClick={(e) =>
+  e.preventDefault();
+  props.onNavigate('about');
+}
+```
+
+Right:
+
+```tsx
+onClick={(e) => {
+  e.preventDefault();
+  props.onNavigate('about');
+}}
+```
 
 ## Git and GitHub (what I learned)
 
@@ -334,14 +472,17 @@ That means: take GitHub changes first, put my commits on top, then push.
 
 ```
 src/
-  App.tsx                 → useState for movies + bookedMovie, maps cards
+  App.tsx                 → page state + movies + bookedMovie; shows one page
   App.css                 → main section / grid / Clear-Reset buttons
   main.tsx                → starts React and mounts App
   components/
-    NavBar.tsx            → navbar component
+    NavBar.tsx            → navbar + onNavigate
     NavBar.css            → navbar styles
     Footer.tsx            → footer component
     Footer.css            → footer styles
+    Home.tsx              → home page (movie list)
+    About.tsx             → about page
+    Contact.tsx           → contact page
     MovieCard.tsx         → movie card + BOOK Now (onBook callback)
     MovieCard.css         → movie card styles
 ```
@@ -357,10 +498,9 @@ Then open the local URL (usually `http://localhost:5173`).
 
 ## Next learning steps
 
-1. Home, About, and Contact pages
-2. Clicking navbar links to switch pages
-3. Seat selection
-4. Booking a ticket
+1. Seat selection
+2. Booking a ticket (movie + seats summary)
+3. Optional later: React Router for real URLs
 
 ## Stack
 

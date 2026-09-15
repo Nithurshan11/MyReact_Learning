@@ -1,7 +1,9 @@
 import {useState} from 'react';
 import NavBar from './components/NavBar';
 import Footer from './components/Footer';
-import MovieCard from './components/MovieCard';
+import Home from './components/Home';
+import About from './components/About';
+import Contact from './components/Contact';
 import './App.css';
 
 
@@ -42,6 +44,7 @@ function App(){
 
   const [movies, setMovies]=useState(initialMovies);
   const [bookedMovie , setBookedMovie] = useState('');
+  const [page, setPage] = useState('home');
 
   function handleClear(){
 
@@ -56,38 +59,30 @@ function App(){
     setBookedMovie(movieName);
   }
 
+  function handleNavigate(nextpage: string){
+    setPage(nextpage);
+  }
+
+
   return(
     <>
-    <NavBar />
+    <NavBar onNavigate={handleNavigate} />
 
-    <main className="main-section">
-      <p className="movie-count">Toatl Movies: {movies.length}</p>
+    {page === 'home' &&(
+      <Home
+      Movies={movies}
+      bookedMovie={bookedMovie}
+      onClear={handleClear}
+      onReset={handleReset}
+      onBook={handleBook}
+      />
+      )}
 
-      <div className="movie-actions">
-       <button onClick={handleClear}>Clear Movies</button>
-       <button onClick={handleReset}>Reset Movies</button>
-      </div>
+      {page === 'about' && <About />}
+      {page === 'contact' && <Contact />}
 
-      {
-        bookedMovie !== '' &&(
-          <p className="Booked-message">you Booked: {bookedMovie}</p>
-        )
-      }
 
-      {movies.map((movie) =>(
-    <MovieCard 
-     key={movie.id}
-     name={movie.name}
-     rating={movie.rating}
-     gender={movie.gender}
-     actors={movie.actors}
-     onBook={handleBook}
-    />
-    ))}
-
-    </main>
-
-    <Footer />
+     <Footer />
     </>
   );
 }
