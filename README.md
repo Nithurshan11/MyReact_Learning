@@ -12,7 +12,7 @@ Users will be able to:
 - Read about the site on the About page
 - Reach out on the Contact page
 - Pick a movie and choose seats
-- Later: confirm booking (movie + seats summary)
+- Confirm the booking (movie + seats summary)
 
 ## Current progress
 
@@ -49,7 +49,7 @@ Users will be able to:
 **Pages + navbar navigation (done)**
 
 - Page components: `Home`, `About`, `Contact`
-- `App` keeps `page` state: `'home' | 'about' | 'contact' | 'seats'`
+- `App` keeps `page` state: `'home' | 'about' | 'contact' | 'seats' | 'summary'`
 - Navbar uses `onNavigate` to change the page
 - Movie list UI moved into `Home` (props from `App`)
 - Booking state stays in `App`, so it survives page switches
@@ -62,8 +62,17 @@ Users will be able to:
 - Selected seats are stored as `string[]` in `App`
 - Selected seats: black background, white text (no extra colors)
 - **Back to Movies** returns to Home
+- **Continue** opens the Summary page (only if at least one seat is selected)
 
-Still to do: booking summary (movie + seats), optional React Router.
+**Booking summary (done)**
+
+- `Summary` shows movie name, selected seats, and ticket count
+- **Confirm Booking** sets `isConfirmed` to `true`
+- After confirm, the title becomes **Booking Confirmed**
+- **New Booking** clears movie, seats, and confirm, then goes Home
+- **Back to seat** goes back to the seat grid (`setPage('seats')`)
+
+Still to do: optional React Router for real URLs.
 
 ## Topics I have learned (checklist)
 
@@ -92,13 +101,13 @@ Still to do: booking summary (movie + seats), optional React Router.
 | **Event handler** | Function tied to a user action | `handleClear`, `handleReset`, `handleBook` |
 | **Callback prop** | Parent passes a function to the child | `onBook={handleBook}` |
 | **Function prop type** | TypeScript type for a function prop | `onBook: (movieName: string) => void` |
-| **Multiple state** | More than one `useState` in one component | `movies` + `bookedMovie` + `page` + `selectedSeats` |
-| **Conditional render** | Show UI only when a condition is true | `page === 'home' && ...` / `page === 'seats' && ...` |
-| **Page components** | Separate screens of the app | `Home`, `About`, `Contact`, `Seats` |
+| **Multiple state** | More than one `useState` in one component | `movies` + `bookedMovie` + `page` + `selectedSeats` + `isConfirmed` |
+| **Conditional render** | Show UI only when a condition is true | `page === 'summary' && <Summary />` |
+| **Page components** | Separate screens of the app | `Home`, `About`, `Contact`, `Seats`, `Summary` |
 | **Page state** | Remember which screen is active | `const [page, setPage] = useState('home')` |
 | **`onNavigate`** | Callback to switch pages from navbar | `props.onNavigate('about')` |
 | **`preventDefault`** | Stop the browser default link jump | `e.preventDefault()` on nav clicks |
-| **Lift state up** | Keep shared data in the parent | movies + bookedMovie + page + selectedSeats in `App` |
+| **Lift state up** | Keep shared data in the parent | movies, bookedMovie, page, selectedSeats, isConfirmed in `App` |
 | **Props parameter** | Function must receive `props` to use them | `function NavBar(props: NavBarProps)` |
 | **Generic `useState`** | Tell TypeScript the type of state | `useState<string[]>([])` |
 | **`.includes()`** | Check if an item is already in an array | `selectedSeats.includes(seat)` |
@@ -106,9 +115,13 @@ Still to do: booking summary (movie + seats), optional React Router.
 | **Spread `[...]`** | Copy an array and add a new item | `[...selectedSeats, seat]` |
 | **Toggle** | Click once to select, click again to unselect | `handleToggleSeat` |
 | **Conditional `className`** | Change CSS class from a true/false check | `isSelected ? 'seat selected' : 'seat'` |
-| **Handler does more than one thing** | One click can update several pieces of state | `handleBook` sets movie, clears seats, opens seats page |
+| **Handler does more than one thing** | One click can update several pieces of state | `handleBook` / `handleNewBooking` |
+| **Boolean state** | State that is `true` or `false` | `const [isConfirmed, setIsConfirmed] = useState(false)` |
+| **Guard / early return** | Stop a function if data is not ready | `if (selectedSeats.length === 0) return;` |
+| **Ternary in JSX** | Pick one of two UIs | confirmed buttons vs confirm/back buttons |
+| **Inline handler** | Small function written in JSX | `onBack={() => setPage('seats')}` |
 
-Not learned yet: React Router (URL routing), booking summary / confirm ticket.
+Not learned yet: React Router (URL routing).
 
 ## What I have learned in React (details)
 
@@ -123,6 +136,7 @@ A component is a function that returns UI. I built:
 - `About` — about page
 - `Contact` — contact page
 - `Seats` — seat grid after BOOK Now
+- `Summary` — booking summary and confirm
 - `App` — parent that puts everything together
 
 ### 2. JSX
@@ -457,6 +471,50 @@ className={isSelected ? 'seat selected' : 'seat'}
 
 Selected seats use black background and white text.
 
+### 31. Booking summary page
+
+`Summary` reads movie name + selected seats from `App`.
+
+Flow:
+
+1. Pick seats → **Continue**
+2. See movie, seats, and ticket count
+3. **Confirm Booking** → `setIsConfirmed(true)`
+4. **New Booking** → clear state and go Home
+
+### 32. Boolean state
+
+```tsx
+const [isConfirmed, setIsConfirmed] = useState(false);
+```
+
+`false` = still reviewing. `true` = booking confirmed. The heading and buttons change with a ternary.
+
+### 33. Guard (early return)
+
+```tsx
+function handleContinue() {
+  if (selectedSeats.length === 0) {
+    return;
+  }
+  setIsConfirmed(false);
+  setPage('summary');
+}
+```
+
+If no seats are selected, the function stops. You cannot open Summary empty.
+
+### 34. Reset many pieces of state at once
+
+```tsx
+function handleNewBooking() {
+  setBookedMovie('');
+  setSelectedSeats([]);
+  setIsConfirmed(false);
+  setPage('home');
+}
+```
+
 ## Mistakes I fixed (important learning)
 
 ### 1. `movie` vs `movies` inside `.map()`
@@ -539,6 +597,16 @@ The grid styles never applied. Class names must be the same in both files.
 
 I named the setter `setSetlectedSeats` (typo). Every update must use that same name, or rename it everywhere to `setSelectedSeats`.
 
+### 11. Wrong function name on `onBack`
+
+I wrote `onBack={hanndleToggleLSeats}`. That name does not exist, and toggle-seat is the wrong job.
+
+**Back** on Summary should return to the seats page:
+
+```tsx
+onBack={() => setPage('seats')}
+```
+
 ## Git and GitHub (what I learned)
 
 - `git init`, `git add .`, `git commit`, `git push` to upload code
@@ -555,7 +623,7 @@ That means: take GitHub changes first, put my commits on top, then push.
 
 ```
 src/
-  App.tsx                 → movies + bookedMovie + page + selectedSeats
+  App.tsx                 → movies + bookedMovie + page + selectedSeats + isConfirmed
   App.css                 → main section / grid / Clear-Reset buttons
   main.tsx                → starts React and mounts App
   components/
@@ -566,8 +634,9 @@ src/
     Home.tsx              → home page (movie list)
     About.tsx             → about page
     Contact.tsx           → contact page
-    Seats.tsx             → seat grid (toggle select)
+    Seats.tsx             → seat grid (toggle select) + Continue
     Seats.css             → black and white seat styles
+    Summary.tsx           → booking summary + confirm
     MovieCard.tsx         → movie card + BOOK Now (onBook callback)
     MovieCard.css         → movie card styles
 ```
@@ -583,8 +652,9 @@ Then open the local URL (usually `http://localhost:5173`).
 
 ## Next learning steps
 
-1. Booking summary (movie name + selected seats)
-2. Optional later: React Router for real URLs
+1. Optional later: React Router for real URLs
+2. Optional: make footer links switch pages like the navbar
+3. Optional: unique movie titles / posters
 
 ## Stack
 

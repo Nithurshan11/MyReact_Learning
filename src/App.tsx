@@ -5,6 +5,7 @@ import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
 import Seats from './components/Seats';
+import Summary from './components/Summary';
 import './App.css';
 
 
@@ -47,6 +48,8 @@ function App(){
   const [bookedMovie , setBookedMovie] = useState('');
   const [page, setPage] = useState('home');
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+  const [isConfirmed , setIsConfirmed] = useState(false);
+
 
   
   function handleClear(){
@@ -79,6 +82,28 @@ function App(){
  function handleBackToMovies(){
   setPage('home');
  }
+
+ function handleContinue(){
+  if (selectedSeats.length === 0){
+    return;
+ }
+ setIsConfirmed(false);
+ setPage('summary');
+}
+
+function handleConfirm(){
+  setIsConfirmed(true);
+}
+
+function handleNewBooking()
+{
+  setBookedMovie('');
+  setSelectedSeats([]);
+  setIsConfirmed(false);
+  setPage('home');
+}
+
+
   return(
     <>
     <NavBar onNavigate={handleNavigate} />
@@ -102,6 +127,18 @@ function App(){
         selectedSeats={selectedSeats}
         onToggleSeat={handleToggleSeat}
         onBack={handleBackToMovies}
+        onContinue={handleContinue}
+        />
+      )}
+
+      {page === 'summary' &&(
+        <Summary
+        movieName={bookedMovie}
+        selectedSeats={selectedSeats}
+        isConfirmed={isConfirmed}
+        onBack={() => setPage('seats')}
+        onConfirm={handleConfirm}
+        onNewBooking={handleNewBooking}
         />
       )}
 

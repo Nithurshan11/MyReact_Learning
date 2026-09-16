@@ -5,6 +5,7 @@ type SeatsProps = {
   selectedSeats: string[];
   onToggleSeat: (seat: string) => void;
   onBack: () => void;
+  onContinue: () => void;
 };
 
 const allSeats = [
@@ -46,6 +47,7 @@ function Seats(props: SeatsProps) {
       </p>
 
       <button onClick={props.onBack}>Back to Movies</button>
+      <button onClick={props.onContinue}>Continue</button>
     </main>
   );
 }
