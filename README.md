@@ -11,7 +11,8 @@ Users will be able to:
 - Browse movies on the Home page
 - Read about the site on the About page
 - Reach out on the Contact page
-- Later: pick a movie, choose seats, and book tickets
+- Pick a movie and choose seats
+- Later: confirm booking (movie + seats summary)
 
 ## Current progress
 
@@ -45,15 +46,24 @@ Users will be able to:
 - `App` stores the chosen title in `bookedMovie` state
 - The page shows `you Booked: ...` after a click
 
-**Pages + navbar navigation (done — learned today)**
+**Pages + navbar navigation (done)**
 
 - Page components: `Home`, `About`, `Contact`
-- `App` keeps `page` state: `'home' | 'about' | 'contact'`
+- `App` keeps `page` state: `'home' | 'about' | 'contact' | 'seats'`
 - Navbar uses `onNavigate` to change the page
 - Movie list UI moved into `Home` (props from `App`)
 - Booking state stays in `App`, so it survives page switches
 
-Still to do: seat selection, full booking flow (and later real URL routing if needed).
+**Seat selection (done)**
+
+- **BOOK Now** saves the movie, clears old seats, and opens the `Seats` page
+- Seat grid is built with `.map()` from `allSeats`
+- Click a seat to add it; click again to remove it
+- Selected seats are stored as `string[]` in `App`
+- Selected seats: black background, white text (no extra colors)
+- **Back to Movies** returns to Home
+
+Still to do: booking summary (movie + seats), optional React Router.
 
 ## Topics I have learned (checklist)
 
@@ -64,15 +74,15 @@ Still to do: seat selection, full booking flow (and later real URL routing if ne
 | **Props** | Data sent from parent → child | `App` sends movie data into `MovieCard` |
 | **Array** | A list of values in `[ ]` | `movies` array, `actors` array |
 | **Object** | One item with fields like `name`, `rating` | each movie inside the array |
-| **List + `.map()`** | Loop an array and show UI for each item | 4 movie cards from `movies.map(...)` |
-| **`key`** | Unique id for each list item | `key={movie.id}` |
+| **List + `.map()`** | Loop an array and show UI for each item | movie cards + seat buttons |
+| **`key`** | Unique id for each list item | `key={movie.id}` / `key={seat}` |
 | **`.join()`** | Turn an array into one string | `actors.join(', ')` |
 | **Import / export** | Share code between files | `export default` + `import` |
 | **Parent / child** | One component renders another | `App` → `NavBar`, `MovieCard`, `Footer` |
 | **Fragment `<>`** | Wrapper with no extra HTML tag | around navbar + main + footer |
 | **`className`** | CSS class name in JSX | `className="movie-card"` |
-| **TypeScript `type`** | Define what kind of data something should contain | `MovieCardProps`, `HomeProps`, `Movie` |
-| **CSS per component** | Styles next to the component | `NavBar.css`, `Footer.css`, `MovieCard.css` |
+| **TypeScript `type`** | Define what kind of data something should contain | `MovieCardProps`, `HomeProps`, `SeatsProps`, `Movie` |
+| **CSS per component** | Styles next to the component | `NavBar.css`, `Footer.css`, `MovieCard.css`, `Seats.css` |
 | **Git / GitHub** | Save and upload code | commit, push, `pull --rebase` |
 | **Hook** | Special React function that starts with `use` | `useState` |
 | **`useState`** | Store data that can change and re-render the UI | `const [movies, setMovies] = useState(...)` |
@@ -82,16 +92,23 @@ Still to do: seat selection, full booking flow (and later real URL routing if ne
 | **Event handler** | Function tied to a user action | `handleClear`, `handleReset`, `handleBook` |
 | **Callback prop** | Parent passes a function to the child | `onBook={handleBook}` |
 | **Function prop type** | TypeScript type for a function prop | `onBook: (movieName: string) => void` |
-| **Multiple state** | More than one `useState` in one component | `movies` + `bookedMovie` + `page` |
-| **Conditional render** | Show UI only when a condition is true | `bookedMovie !== '' && (...)` / `page === 'home' && ...` |
-| **Page components** | Separate screens of the app | `Home`, `About`, `Contact` |
+| **Multiple state** | More than one `useState` in one component | `movies` + `bookedMovie` + `page` + `selectedSeats` |
+| **Conditional render** | Show UI only when a condition is true | `page === 'home' && ...` / `page === 'seats' && ...` |
+| **Page components** | Separate screens of the app | `Home`, `About`, `Contact`, `Seats` |
 | **Page state** | Remember which screen is active | `const [page, setPage] = useState('home')` |
 | **`onNavigate`** | Callback to switch pages from navbar | `props.onNavigate('about')` |
 | **`preventDefault`** | Stop the browser default link jump | `e.preventDefault()` on nav clicks |
-| **Lift state up** | Keep shared data in the parent | movies + bookedMovie + page in `App` |
+| **Lift state up** | Keep shared data in the parent | movies + bookedMovie + page + selectedSeats in `App` |
 | **Props parameter** | Function must receive `props` to use them | `function NavBar(props: NavBarProps)` |
+| **Generic `useState`** | Tell TypeScript the type of state | `useState<string[]>([])` |
+| **`.includes()`** | Check if an item is already in an array | `selectedSeats.includes(seat)` |
+| **`.filter()`** | Make a new array without some items | remove a seat on second click |
+| **Spread `[...]`** | Copy an array and add a new item | `[...selectedSeats, seat]` |
+| **Toggle** | Click once to select, click again to unselect | `handleToggleSeat` |
+| **Conditional `className`** | Change CSS class from a true/false check | `isSelected ? 'seat selected' : 'seat'` |
+| **Handler does more than one thing** | One click can update several pieces of state | `handleBook` sets movie, clears seats, opens seats page |
 
-Not learned yet: React Router (URL routing), seat selection, full booking flow.
+Not learned yet: React Router (URL routing), booking summary / confirm ticket.
 
 ## What I have learned in React (details)
 
@@ -105,6 +122,7 @@ A component is a function that returns UI. I built:
 - `Home` — movie list page
 - `About` — about page
 - `Contact` — contact page
+- `Seats` — seat grid after BOOK Now
 - `App` — parent that puts everything together
 
 ### 2. JSX
@@ -392,6 +410,53 @@ In TypeScript, `type` is used to define what kind of data something should conta
 If `bookedMovie` is one movie name, type it as `string`, not `string[]`.  
 Comparing `string[]` to `''` causes a TypeScript error.
 
+### 27. Seat page
+
+`Seats` is a new page. `App` shows it when `page === 'seats'`.
+
+**BOOK Now** now does three things:
+
+```tsx
+function handleBook(movieName: string) {
+  setBookedMovie(movieName);
+  setSelectedSeats([]);
+  setPage('seats');
+}
+```
+
+### 28. Array state for selected seats
+
+```tsx
+const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+```
+
+`<string[]>` tells TypeScript: this state is an array of strings.
+
+### 29. Toggle with `.includes()`, `.filter()`, and spread
+
+```tsx
+function handleToggleSeat(seat: string) {
+  if (selectedSeats.includes(seat)) {
+    setSelectedSeats(selectedSeats.filter((s) => s !== seat));
+  } else {
+    setSelectedSeats([...selectedSeats, seat]);
+  }
+}
+```
+
+- already selected → remove it (`.filter`)
+- not selected → copy the old array and add the seat (`[...]`)
+
+Do not `.push()` into state. Always make a **new** array.
+
+### 30. Conditional className
+
+```tsx
+className={isSelected ? 'seat selected' : 'seat'}
+```
+
+Selected seats use black background and white text.
+
 ## Mistakes I fixed (important learning)
 
 ### 1. `movie` vs `movies` inside `.map()`
@@ -456,6 +521,24 @@ onClick={(e) => {
 }}
 ```
 
+### 8. CSS file name must match the import
+
+I wrote `import './Seat.css'` but the file was `Seats.css`.
+
+Vite could not find the file, the app crashed, and the page went blank.
+
+Fix: `import './Seats.css'` — the name must match exactly.
+
+### 9. CSS class name must match JSX
+
+JSX used `className="seats-grid"` but CSS had `.seat-grid`.
+
+The grid styles never applied. Class names must be the same in both files.
+
+### 10. Setter name must match `useState`
+
+I named the setter `setSetlectedSeats` (typo). Every update must use that same name, or rename it everywhere to `setSelectedSeats`.
+
 ## Git and GitHub (what I learned)
 
 - `git init`, `git add .`, `git commit`, `git push` to upload code
@@ -472,7 +555,7 @@ That means: take GitHub changes first, put my commits on top, then push.
 
 ```
 src/
-  App.tsx                 → page state + movies + bookedMovie; shows one page
+  App.tsx                 → movies + bookedMovie + page + selectedSeats
   App.css                 → main section / grid / Clear-Reset buttons
   main.tsx                → starts React and mounts App
   components/
@@ -483,6 +566,8 @@ src/
     Home.tsx              → home page (movie list)
     About.tsx             → about page
     Contact.tsx           → contact page
+    Seats.tsx             → seat grid (toggle select)
+    Seats.css             → black and white seat styles
     MovieCard.tsx         → movie card + BOOK Now (onBook callback)
     MovieCard.css         → movie card styles
 ```
@@ -498,9 +583,8 @@ Then open the local URL (usually `http://localhost:5173`).
 
 ## Next learning steps
 
-1. Seat selection
-2. Booking a ticket (movie + seats summary)
-3. Optional later: React Router for real URLs
+1. Booking summary (movie name + selected seats)
+2. Optional later: React Router for real URLs
 
 ## Stack
 

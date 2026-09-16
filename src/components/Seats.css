@@ -1,0 +1,36 @@
+.page-section {
+  padding: 32px;
+  text-align: left;
+  background: #ffffff;
+  color: #000000;
+}
+
+.screen {
+  background: #000000;
+  color: #ffffff;
+  text-align: center;
+  padding: 8px;
+  margin: 16px 0 24px;
+  letter-spacing: 4px;
+}
+
+.seats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 56px);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.seat {
+  padding: 10px 0;
+  cursor: pointer;
+  border: 1px solid #000000;
+  background: #ffffff;
+  color: #000000;
+}
+
+.seat.selected {
+  background: #000000;
+  color: #ffffff;
+  font-weight: 600;
+}

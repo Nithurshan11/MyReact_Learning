@@ -4,6 +4,7 @@ import Footer from './components/Footer';
 import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
+import Seats from './components/Seats';
 import './App.css';
 
 
@@ -45,7 +46,9 @@ function App(){
   const [movies, setMovies]=useState(initialMovies);
   const [bookedMovie , setBookedMovie] = useState('');
   const [page, setPage] = useState('home');
+  const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
 
+  
   function handleClear(){
 
     setMovies([]);
@@ -57,13 +60,25 @@ function App(){
 
   function handleBook(movieName: string){
     setBookedMovie(movieName);
+    setSelectedSeats([]);
+    setPage('seats');
   }
 
   function handleNavigate(nextpage: string){
     setPage(nextpage);
   }
 
+  function handleToggleSeat(seat: string){
+    if(selectedSeats.includes(seat)){
+      setSelectedSeats(selectedSeats.filter((s) => s !== seat));
+    } else {
+      setSelectedSeats([...selectedSeats, seat]);
+    }
+  }
 
+ function handleBackToMovies(){
+  setPage('home');
+ }
   return(
     <>
     <NavBar onNavigate={handleNavigate} />
@@ -80,6 +95,15 @@ function App(){
 
       {page === 'about' && <About />}
       {page === 'contact' && <Contact />}
+
+      {page ==='seats' && (
+        <Seats
+        MovieName={bookedMovie}
+        selectedSeats={selectedSeats}
+        onToggleSeat={handleToggleSeat}
+        onBack={handleBackToMovies}
+        />
+      )}
 
 
      <Footer />
