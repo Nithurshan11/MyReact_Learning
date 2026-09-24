@@ -1,0 +1,34 @@
+[
+    {
+      "id": 1,
+      "name": "The Dark Knight",
+      "rating": 9.0,
+      "genre": "Action",
+      "actors": ["Christian Bale", "Heath Ledger", "Aaron Eckhart"],
+      "poster": "/posters/download.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Inception",
+      "rating": 8.8,
+      "genre": "Sci-Fi",
+      "actors": ["Leonardo DiCaprio", "Joseph Gordon-Levitt"],
+      "poster": "/posters/download.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Interstellar",
+      "rating": 8.6,
+      "genre": "Sci-Fi",
+      "actors": ["Matthew McConaughey", "Anne Hathaway"],
+      "poster": "/posters/download.jpg"
+    },
+    {
+      "id": 4,
+      "name": "The Prestige",
+      "rating": 8.5,
+      "genre": "Drama",
+      "actors": ["Hugh Jackman", "Christian Bale"],
+      "poster": "/posters/download.jpg"
+    }
+  ]
