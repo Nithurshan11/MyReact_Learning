@@ -1,33 +1,15 @@
+import {Link} from 'react-router-dom';
 import './NavBar.css';
 
-type NavBarProps = {
-  onNavigate: (page:string) => void;
-};
 
-function NavBar(props: NavBarProps) {
-  return (
+function NavBar() {
+  return(
     <nav className="navbar">
       <h1 className="logo">CineBook</h1>
       <ul className="nav-links">
-        <li><a href="#home" 
-        onClick={(e) =>{
-          e.preventDefault();
-          props.onNavigate('home');
-        }}
-        >Home</a></li>
-
-        <li><a href="#about"
-        onClick={(e)=>{
-          e.preventDefault();
-          props.onNavigate('about');
-        }}
-        >About</a></li>
-        <li><a href="#contact"
-        onClick={(e)=>{
-          e.preventDefault();
-          props.onNavigate('contact');
-        }}
-        >Contact</a></li>
+        <li><Link to="/">Home</Link></li>
+        <li><Link to="/about">About</Link></li>
+        <li><Link to="/contact">Contact</Link></li>
       </ul>
     </nav>
   );

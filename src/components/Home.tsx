@@ -7,6 +7,7 @@ type Movie = {
     rating: number;
     gender: string;
     actors: string[];
+    poster: string;
 
 };
 
@@ -39,6 +40,7 @@ function Home(props: HomeProps) {
                 key={movie.id}
                 name={movie.name}
                 rating={movie.rating}
+                poster={movie.poster}
                 actors={movie.actors}
                 gender={movie.gender}
                 onBook={() => props.onBook(movie.name)}

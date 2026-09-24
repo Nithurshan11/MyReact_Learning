@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, Navigate} from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Footer from './components/Footer';
 import Home from './components/Home';
@@ -18,6 +19,7 @@ const initialMovies=[
     rating: 9.0,
     gender: "Action",
     actors: ["Christian Bale", "Heath Ledger", "Aaron Eckhart"],
+    poster: 'posters/download.jpg',
   },
   {
     id: 2,
@@ -25,13 +27,14 @@ const initialMovies=[
     rating: 8.5,
     gender: "Action",
     actors: ["Christian Bale", "Heath Ledger", "Aaron Eckhart"],
-  },
+    poster: 'posters/download.jpg',  },
   {
     id: 3,
     name: "The Dark Knight Rises",
     rating: 8.5,
     gender: "Action",
     actors: ["Christian Bale", "Heath Ledger", "Aaron Eckhart"],
+    poster: 'posters/download.jpg',
   },
   {
     id: 4,
@@ -39,14 +42,23 @@ const initialMovies=[
     rating: 8.5,
     gender: "Action",
     actors: ["Christian Bale", "Heath Ledger", "Aaron Eckhart"],
+    poster: 'posters/download.jpg',
   },
 ];
 
-function App(){
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  );
+}
 
+function AppContent(){
+
+  const navigate = useNavigate();
   const [movies, setMovies]=useState(initialMovies);
   const [bookedMovie , setBookedMovie] = useState('');
-  const [page, setPage] = useState('home');
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [isConfirmed , setIsConfirmed] = useState(false);
 
@@ -64,11 +76,7 @@ function App(){
   function handleBook(movieName: string){
     setBookedMovie(movieName);
     setSelectedSeats([]);
-    setPage('seats');
-  }
-
-  function handleNavigate(nextpage: string){
-    setPage(nextpage);
+    navigate('/seats');
   }
 
   function handleToggleSeat(seat: string){
@@ -80,7 +88,7 @@ function App(){
   }
 
  function handleBackToMovies(){
-  setPage('home');
+  navigate('/');
  }
 
  function handleContinue(){
@@ -88,7 +96,7 @@ function App(){
     return;
  }
  setIsConfirmed(false);
- setPage('summary');
+ navigate('/summary');
 }
 
 function handleConfirm(){
@@ -100,15 +108,19 @@ function handleNewBooking()
   setBookedMovie('');
   setSelectedSeats([]);
   setIsConfirmed(false);
-  setPage('home');
+  navigate('/');
 }
 
 
   return(
     <>
-    <NavBar onNavigate={handleNavigate} />
+    <NavBar/>
 
-    {page === 'home' &&(
+    <Routes>
+
+    <Route
+    path="/"
+    element={
       <Home
       Movies={movies}
       bookedMovie={bookedMovie}
@@ -116,34 +128,49 @@ function handleNewBooking()
       onReset={handleReset}
       onBook={handleBook}
       />
-      )}
+    }
+    />
 
-      {page === 'about' && <About />}
-      {page === 'contact' && <Contact />}
+    <Route path="/about" element={<About />} />
+    <Route path="/contact" element={<Contact />} />
+    <Route path="/seats" 
+    element={
+    bookedMovie !==''?(
+   <Seats 
+    
+    MovieName={bookedMovie}
+    selectedSeats={selectedSeats}
+    onToggleSeat={handleToggleSeat}
+    onBack={handleBackToMovies}
+    onContinue={handleContinue}
+    />
+    ):(
+      <Navigate to="/" replace />
+    )
+    }
+    />
+    <Route path="/summary" 
+    element={
+      bookedMovie !=='' && selectedSeats.length > 0 ?(
+      <Summary 
+      
+      movieName={bookedMovie}
+      selectedSeats={selectedSeats}
+      isConfirmed={isConfirmed}
+      onBack={() => navigate('/seats')}
+      onConfirm={handleConfirm}
+      onNewBooking={handleNewBooking}
+      />
+      ):bookedMovie !=='' ?(
+        <Navigate to = "/" replace/>
+      ):(
+        <Navigate to = "/seats" replace/>
+      )
+      }
+      />
+      </Routes>
 
-      {page ==='seats' && (
-        <Seats
-        MovieName={bookedMovie}
-        selectedSeats={selectedSeats}
-        onToggleSeat={handleToggleSeat}
-        onBack={handleBackToMovies}
-        onContinue={handleContinue}
-        />
-      )}
-
-      {page === 'summary' &&(
-        <Summary
-        movieName={bookedMovie}
-        selectedSeats={selectedSeats}
-        isConfirmed={isConfirmed}
-        onBack={() => setPage('seats')}
-        onConfirm={handleConfirm}
-        onNewBooking={handleNewBooking}
-        />
-      )}
-
-
-     <Footer />
+    <Footer />
     </>
   );
 }

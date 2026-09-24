@@ -8,11 +8,12 @@ The goal is to make a real app step by step: navbar, footer, movie cards, pages,
 
 Users will be able to:
 
-- Browse movies on the Home page
+- Browse movies on the Home page (with poster images)
 - Read about the site on the About page
 - Reach out on the Contact page
 - Pick a movie and choose seats
 - Confirm the booking (movie + seats summary)
+- Use real URLs (`/`, `/about`, `/contact`, `/seats`, `/summary`)
 
 ## Current progress
 
@@ -28,8 +29,9 @@ Users will be able to:
 **Movie cards (done)**
 
 - 4 movie cards shown with `.map()`
-- Each card shows: name, rating, genre, and actors
+- Each card shows: name, rating, genre/gender, actors, and **poster image**
 - `MovieCard` receives that data through **props**
+- Poster files live in `public/posters/` and are used like `/posters/download.jpg`
 
 **useState / hooks (done)**
 
@@ -44,25 +46,22 @@ Users will be able to:
 - Each `MovieCard` has a **BOOK Now** button
 - Clicking it calls a function prop: `onBook`
 - `App` stores the chosen title in `bookedMovie` state
-- The page shows `you Booked: ...` after a click
 
-**Pages + navbar navigation (done)**
+**Pages (done)**
 
-- Page components: `Home`, `About`, `Contact`
-- `App` keeps `page` state: `'home' | 'about' | 'contact' | 'seats' | 'summary'`
-- Navbar uses `onNavigate` to change the page
-- Movie list UI moved into `Home` (props from `App`)
+- Page components: `Home`, `About`, `Contact`, `Seats`, `Summary`
+- Movie list UI lives in `Home` (props from `App`)
 - Booking state stays in `App`, so it survives page switches
 
 **Seat selection (done)**
 
-- **BOOK Now** saves the movie, clears old seats, and opens the `Seats` page
+- **BOOK Now** saves the movie, clears old seats, and opens `/seats`
 - Seat grid is built with `.map()` from `allSeats`
 - Click a seat to add it; click again to remove it
 - Selected seats are stored as `string[]` in `App`
-- Selected seats: black background, white text (no extra colors)
-- **Back to Movies** returns to Home
-- **Continue** opens the Summary page (only if at least one seat is selected)
+- Selected seats: black background, white text
+- **Back to Movies** returns to Home (`/`)
+- **Continue** opens Summary (only if at least one seat is selected)
 
 **Booking summary (done)**
 
@@ -70,9 +69,39 @@ Users will be able to:
 - **Confirm Booking** sets `isConfirmed` to `true`
 - After confirm, the title becomes **Booking Confirmed**
 - **New Booking** clears movie, seats, and confirm, then goes Home
-- **Back to seat** goes back to the seat grid (`setPage('seats')`)
+- **Back to seats** goes to `/seats`
 
-Still to do: optional React Router for real URLs.
+**React Router (done)**
+
+- Installed `react-router-dom`
+- `BrowserRouter` wraps the app
+- `Routes` / `Route` map URLs to pages
+- Navbar and Footer use `<Link to="...">`
+- Buttons use `navigate('/seats')` etc. via `useNavigate`
+- `useNavigate` lives in `AppContent` **inside** the Router (not in the same component that creates `BrowserRouter`)
+
+**Posters / public images (done)**
+
+- Images are stored under `public/posters/`
+- In code, the path should start with `/` — example: `/posters/download.jpg`
+- Poster CSS (`.movie-poster`) sizes the image on each card
+
+**Route guards (done — Step 11)**
+
+- File changed: **`src/App.tsx` only**
+- Imported `Navigate` from `react-router-dom`
+- `/seats` and `/summary` only open when booking state is ready
+- Otherwise React redirects with `<Navigate to="..." replace />`
+
+| URL | If this is true | Then |
+|-----|-----------------|------|
+| `/seats` | no movie booked (`bookedMovie === ''`) | go to `/` (Home) |
+| `/seats` | movie is booked | show Seats page |
+| `/summary` | no movie booked | go to `/` (Home) |
+| `/summary` | movie booked, but no seats | go to `/seats` |
+| `/summary` | movie booked + seats selected | show Summary page |
+
+Still to do: unique movie titles, rename `gender` → `genre`, then `useEffect` + `fetch`, then optional Node.js.
 
 ## Topics I have learned (checklist)
 
@@ -101,14 +130,11 @@ Still to do: optional React Router for real URLs.
 | **Event handler** | Function tied to a user action | `handleClear`, `handleReset`, `handleBook` |
 | **Callback prop** | Parent passes a function to the child | `onBook={handleBook}` |
 | **Function prop type** | TypeScript type for a function prop | `onBook: (movieName: string) => void` |
-| **Multiple state** | More than one `useState` in one component | `movies` + `bookedMovie` + `page` + `selectedSeats` + `isConfirmed` |
-| **Conditional render** | Show UI only when a condition is true | `page === 'summary' && <Summary />` |
+| **Multiple state** | More than one `useState` in one component | `movies` + `bookedMovie` + `selectedSeats` + `isConfirmed` |
+| **Conditional render** | Show UI only when a condition is true | booked message / confirmed UI |
 | **Page components** | Separate screens of the app | `Home`, `About`, `Contact`, `Seats`, `Summary` |
-| **Page state** | Remember which screen is active | `const [page, setPage] = useState('home')` |
-| **`onNavigate`** | Callback to switch pages from navbar | `props.onNavigate('about')` |
-| **`preventDefault`** | Stop the browser default link jump | `e.preventDefault()` on nav clicks |
-| **Lift state up** | Keep shared data in the parent | movies, bookedMovie, page, selectedSeats, isConfirmed in `App` |
-| **Props parameter** | Function must receive `props` to use them | `function NavBar(props: NavBarProps)` |
+| **Lift state up** | Keep shared data in the parent | booking data in `App` / `AppContent` |
+| **Props parameter** | Function must receive `props` to use them | `function NavBar(props: NavBarProps)` (earlier) / now NavBar uses `Link` |
 | **Generic `useState`** | Tell TypeScript the type of state | `useState<string[]>([])` |
 | **`.includes()`** | Check if an item is already in an array | `selectedSeats.includes(seat)` |
 | **`.filter()`** | Make a new array without some items | remove a seat on second click |
@@ -119,9 +145,20 @@ Still to do: optional React Router for real URLs.
 | **Boolean state** | State that is `true` or `false` | `const [isConfirmed, setIsConfirmed] = useState(false)` |
 | **Guard / early return** | Stop a function if data is not ready | `if (selectedSeats.length === 0) return;` |
 | **Ternary in JSX** | Pick one of two UIs | confirmed buttons vs confirm/back buttons |
-| **Inline handler** | Small function written in JSX | `onBack={() => setPage('seats')}` |
+| **Inline handler** | Small function written in JSX | `onBack={() => navigate('/seats')}` |
+| **`react-router-dom`** | Library for real page URLs | install + import Router tools |
+| **`BrowserRouter`** | Provides routing context | wraps `AppContent` |
+| **`Routes` / `Route`** | Map a path to a page component | `path="/about"` → `<About />` |
+| **`Link`** | Change page without full reload | navbar + footer links |
+| **`useNavigate`** | Go to a URL from a button/handler | `navigate('/seats')` |
+| **Router child rule** | Hooks like `useNavigate` must be inside Router | `App` wraps, `AppContent` uses navigate |
+| **`<img>` in React** | Show an image with `src` and `alt` | movie posters on cards |
+| **Public folder images** | Files in `public` are served from `/` | `/posters/download.jpg` |
+| **Route guard** | Block a page unless state is ready | seats/summary only after booking |
+| **`Navigate`** | Redirect to another URL in JSX | `<Navigate to="/" replace />` |
+| **`replace`** | Redirect without keeping the bad URL in history | used on guard redirects |
 
-Not learned yet: React Router (URL routing).
+Not learned yet: `useEffect` + `fetch`, Node.js backend.
 
 ## What I have learned in React (details)
 
@@ -137,7 +174,7 @@ A component is a function that returns UI. I built:
 - `Contact` — contact page
 - `Seats` — seat grid after BOOK Now
 - `Summary` — booking summary and confirm
-- `App` — parent that puts everything together
+- `App` / `AppContent` — Router wrapper + state + routes
 
 ### 2. JSX
 
@@ -511,9 +548,138 @@ function handleNewBooking() {
   setBookedMovie('');
   setSelectedSeats([]);
   setIsConfirmed(false);
-  setPage('home');
+  navigate('/');
 }
 ```
+
+### 35. React Router (real URLs)
+
+I installed:
+
+```bash
+npm install react-router-dom
+```
+
+Then I replaced fake `page` state with routes:
+
+| URL | Page |
+|-----|------|
+| `/` | Home |
+| `/about` | About |
+| `/contact` | Contact |
+| `/seats` | Seats |
+| `/summary` | Summary |
+
+Navbar / Footer:
+
+```tsx
+<Link to="/about">About</Link>
+```
+
+Booking buttons:
+
+```tsx
+navigate('/seats');
+navigate('/summary');
+navigate('/');
+```
+
+### 36. `useNavigate` must be inside the Router
+
+This error happened:
+
+`useNavigate() may be used only in the context of a <Router> component.`
+
+Fix pattern:
+
+```tsx
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  );
+}
+
+function AppContent() {
+  const navigate = useNavigate();
+  // ... routes and state here
+}
+```
+
+`App` creates the Router. `AppContent` uses `useNavigate`.
+
+### 37. Movie poster images from `public`
+
+Put images in:
+
+```
+public/posters/download.jpg
+```
+
+Use them in data as:
+
+```tsx
+poster: '/posters/download.jpg',
+```
+
+Show them in the card:
+
+```tsx
+<img className="movie-poster" src={props.poster} alt={props.name} />
+```
+
+- `src` = image path  
+- `alt` = text if the image fails  
+
+### 38. Public path rule
+
+Correct:
+
+```tsx
+'/posters/download.jpg'
+```
+
+Wrong:
+
+```tsx
+'public/posters/download.jpg'
+'posters/download.jpg'   // missing leading /
+```
+
+In Vite, `public` is not part of the URL. Start with `/`.
+
+### 39. Route guards with `Navigate` (Step 11)
+
+**File:** `src/App.tsx` only
+
+**Import:**
+
+```tsx
+import { BrowserRouter, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+```
+
+**Seats guard (idea):**
+
+```tsx
+bookedMovie !== '' ? <Seats ... /> : <Navigate to="/" replace />
+```
+
+**Summary guard (idea):**
+
+```tsx
+bookedMovie !== '' && selectedSeats.length > 0
+  ? <Summary ... />
+  : bookedMovie !== ''
+    ? <Navigate to="/seats" replace />
+    : <Navigate to="/" replace />
+```
+
+**Why this matters**
+
+- Users can type `/seats` or `/summary` in the browser
+- Without a guard, those pages can open with empty data
+- A guard keeps the URL and booking state in sync
 
 ## Mistakes I fixed (important learning)
 
@@ -604,8 +770,36 @@ I wrote `onBack={hanndleToggleLSeats}`. That name does not exist, and toggle-sea
 **Back** on Summary should return to the seats page:
 
 ```tsx
-onBack={() => setPage('seats')}
+onBack={() => navigate('/seats')}
 ```
+
+### 12. Package must be installed before import
+
+I imported `react-router-dom` before running `npm install react-router-dom`.
+
+Vite error: **Failed to resolve import "react-router-dom"** → blank white page.
+
+Fix: install the package, then restart / hard refresh the browser.
+
+### 13. Public image path needs a leading `/`
+
+`poster: 'posters/download.jpg'` can fail.
+
+Use:
+
+```tsx
+poster: '/posters/download.jpg'
+```
+
+### 14. Summary guard order matters
+
+For `/summary`:
+
+1. Movie + seats → show Summary  
+2. Movie but no seats → go to `/seats`  
+3. No movie → go to `/`
+
+If those branches are swapped, redirects go to the wrong page.
 
 ## Git and GitHub (what I learned)
 
@@ -622,14 +816,18 @@ That means: take GitHub changes first, put my commits on top, then push.
 ## Project files so far
 
 ```
+public/
+  posters/
+    download.jpg          → movie poster image(s)
+  favicon.svg
 src/
-  App.tsx                 → movies + bookedMovie + page + selectedSeats + isConfirmed
+  App.tsx                 → BrowserRouter + AppContent (state, routes, navigate)
   App.css                 → main section / grid / Clear-Reset buttons
   main.tsx                → starts React and mounts App
   components/
-    NavBar.tsx            → navbar + onNavigate
+    NavBar.tsx            → navbar with Link
     NavBar.css            → navbar styles
-    Footer.tsx            → footer component
+    Footer.tsx            → footer with Link
     Footer.css            → footer styles
     Home.tsx              → home page (movie list)
     About.tsx             → about page
@@ -637,7 +835,7 @@ src/
     Seats.tsx             → seat grid (toggle select) + Continue
     Seats.css             → black and white seat styles
     Summary.tsx           → booking summary + confirm
-    MovieCard.tsx         → movie card + BOOK Now (onBook callback)
+    MovieCard.tsx         → movie card + poster + BOOK Now
     MovieCard.css         → movie card styles
 ```
 
@@ -652,12 +850,15 @@ Then open the local URL (usually `http://localhost:5173`).
 
 ## Next learning steps
 
-1. Optional later: React Router for real URLs
-2. Optional: make footer links switch pages like the navbar
-3. Optional: unique movie titles / posters
+1. Unique movie titles (not the same movie 3 times)
+2. Rename `gender` → `genre` in data, types, and props
+3. Fix poster path to `/posters/download.jpg` if images do not load
+4. `useEffect` + `fetch` (load data)
+5. Optional later: Node.js backend
 
 ## Stack
 
 - React 19
 - TypeScript
 - Vite
+- react-router-dom

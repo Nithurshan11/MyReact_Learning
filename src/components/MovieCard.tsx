@@ -7,6 +7,7 @@ type MovieCardProps = {
     rating: number;
     actors: string[];
     gender: string;
+    poster: string;
     onBook: (movieName: string)=> void;
 
 };
@@ -15,7 +16,14 @@ type MovieCardProps = {
 function MovieCard(props: MovieCardProps) {
 
     return(
+
         <div className="movie-card">
+
+        <img 
+           className='movie-poster'
+           src={props.poster}
+           alt={props.name}
+         />
             <h3 className="movie-name">{props.name}</h3>
             <p className="movie-rating">{props.rating}/10</p>
             <p className="movie-gender">{props.gender}</p>

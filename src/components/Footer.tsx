@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './Footer.css';
 
 function Footer() {
@@ -7,9 +8,9 @@ function Footer() {
 
             <h2 className='footer-logo'>CineBook</h2>
             <ul className='footer-links'>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
+                <li><Link to="/">Home</Link></li>
+                <li><Link to="/about">About</Link></li>
+                <li><Link to="/contact">Contact</Link></li>
 
             </ul>
         <p className='footer-copyright'>Copyright &copy; 2026 CineBook. All rights reserved.</p>
