@@ -10,7 +10,7 @@ Users will be able to:
 
 - Browse movies on the Home page (with poster images)
 - Read about the site on the About page
-- Reach out on the Contact page
+- Reach out on the Contact page (name, email, message form)
 - Pick a movie and choose seats
 - Confirm the booking (movie + seats summary)
 - Use real URLs (`/`, `/about`, `/contact`, `/seats`, `/summary`)
@@ -101,7 +101,31 @@ Users will be able to:
 | `/summary` | movie booked, but no seats | go to `/seats` |
 | `/summary` | movie booked + seats selected | show Summary page |
 
-Still to do: unique movie titles, rename `gender` → `genre`, then `useEffect` + `fetch`, then optional Node.js.
+**Unique movies + `genre` (done)**
+
+- Four different titles: The Dark Knight, Inception, Interstellar, The Prestige
+- Field renamed from `gender` to `genre`
+- Poster path uses leading `/`: `/posters/download.jpg`
+
+**`useEffect` + `fetch` (done — Step 12)**
+
+- Movie data lives in `public/movies.json`
+- `App` loads it with `fetch('/movies.json')`
+- `useEffect(() => { loadMovies(); }, [])` runs once when the app starts
+- `isLoading` shows “Loading movies...”
+- `error` shows a message if loading fails
+- **Reset Movies** calls `loadMovies()` again
+
+**Contact form / controlled inputs (done — Step 13)**
+
+- Files: `Contact.tsx` + `Contact.css`
+- Form fields: name, email, message
+- Each field uses `useState` + `value` + `onChange` (controlled input)
+- Submit uses `e.preventDefault()` so the page does not reload
+- After send, `isSent` switches the UI to a thank-you message
+- CSS classes on the form must match names in `Contact.css`
+
+Still to do: optional Node.js backend (real API instead of `movies.json`).
 
 ## Topics I have learned (checklist)
 
@@ -120,7 +144,7 @@ Still to do: unique movie titles, rename `gender` → `genre`, then `useEffect` 
 | **Fragment `<>`** | Wrapper with no extra HTML tag | around navbar + main + footer |
 | **`className`** | CSS class name in JSX | `className="movie-card"` |
 | **TypeScript `type`** | Define what kind of data something should contain | `MovieCardProps`, `HomeProps`, `SeatsProps`, `Movie` |
-| **CSS per component** | Styles next to the component | `NavBar.css`, `Footer.css`, `MovieCard.css`, `Seats.css` |
+| **CSS per component** | Styles next to the component | `NavBar.css`, `Footer.css`, `MovieCard.css`, `Seats.css`, `Contact.css` |
 | **Git / GitHub** | Save and upload code | commit, push, `pull --rebase` |
 | **Hook** | Special React function that starts with `use` | `useState` |
 | **`useState`** | Store data that can change and re-render the UI | `const [movies, setMovies] = useState(...)` |
@@ -157,8 +181,20 @@ Still to do: unique movie titles, rename `gender` → `genre`, then `useEffect` 
 | **Route guard** | Block a page unless state is ready | seats/summary only after booking |
 | **`Navigate`** | Redirect to another URL in JSX | `<Navigate to="/" replace />` |
 | **`replace`** | Redirect without keeping the bad URL in history | used on guard redirects |
+| **`useEffect`** | Run code after render (side effects) | load movies when app starts |
+| **`fetch`** | Request data from a URL | `fetch('/movies.json')` |
+| **`async` / `await`** | Wait for a Promise to finish | inside `loadMovies` |
+| **Loading state** | UI while waiting for data | `isLoading` → “Loading movies...” |
+| **Error state** | UI when something fails | `error` message on Home |
+| **JSON data file** | Store data outside React code | `public/movies.json` |
+| **Empty dependency array `[]`** | Run `useEffect` only once on mount | `useEffect(..., [])` |
+| **Controlled input** | Input text lives in React state (`value` + `onChange`) | Contact name / email / message |
+| **`e.target.value`** | The text the user typed in that field | `setName(e.target.value)` |
+| **Form `onSubmit`** | Run code when the form is submitted | Contact Send button |
+| **`preventDefault` on form** | Stop browser reload on submit | `e.preventDefault()` in Contact |
+| **Form success state** | Switch from form → thank-you UI | `isSent` on Contact |
 
-Not learned yet: `useEffect` + `fetch`, Node.js backend.
+Not learned yet: Node.js backend (Express API).
 
 ## What I have learned in React (details)
 
@@ -171,7 +207,7 @@ A component is a function that returns UI. I built:
 - `MovieCard` — one reusable movie card
 - `Home` — movie list page
 - `About` — about page
-- `Contact` — contact page
+- `Contact` — contact form (controlled inputs + thank-you message)
 - `Seats` — seat grid after BOOK Now
 - `Summary` — booking summary and confirm
 - `App` / `AppContent` — Router wrapper + state + routes
@@ -681,6 +717,96 @@ bookedMovie !== '' && selectedSeats.length > 0
 - Without a guard, those pages can open with empty data
 - A guard keeps the URL and booking state in sync
 
+### 40. `useEffect` + `fetch` (Step 12)
+
+Movies are no longer only hard-coded inside `App`. They load from a file:
+
+```
+public/movies.json
+```
+
+Load function:
+
+```tsx
+async function loadMovies() {
+  try {
+    setIsLoading(true);
+    setError('');
+    const response = await fetch('/movies.json');
+    if (!response.ok) {
+      throw new Error('Failed to load movies');
+    }
+    const data: Movie[] = await response.json();
+    setMovies(data);
+  } catch {
+    setError('Could not load movies');
+  } finally {
+    setIsLoading(false);
+  }
+}
+```
+
+Run once when the component mounts:
+
+```tsx
+useEffect(() => {
+  loadMovies();
+}, []);
+```
+
+Home uses:
+
+- `isLoading` → show loading text
+- `error` → show error text
+- otherwise → show movie cards
+
+**Reset** calls `loadMovies()` again so the list comes back after Clear.
+
+### 41. Contact form with controlled inputs (Step 13)
+
+The Contact page is no longer only static email/phone text. It is a form.
+
+State:
+
+```tsx
+const [name, setName] = useState('');
+const [email, setEmail] = useState('');
+const [message, setMessage] = useState('');
+const [isSent, setIsSent] = useState(false);
+```
+
+A **controlled input** means React owns the text:
+
+```tsx
+<input
+  className="contact-input"
+  type="text"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+/>
+```
+
+- `value={name}` → show current state
+- `onChange` → update state when the user types
+- `e.target.value` → the new text from that input
+
+Submit:
+
+```tsx
+<form
+  className="contact-form"
+  onSubmit={(e) => {
+    e.preventDefault();
+    setIsSent(true);
+  }}
+>
+```
+
+- `e.preventDefault()` stops a full page reload
+- `setIsSent(true)` shows: `Thanks, {name}! We got your message.`
+
+Styles live in `Contact.css`. Class names in JSX must match CSS (for example `contact-form`, `contact-label`, `contact-input`, `contact-button`, `contact-success`).
+
 ## Mistakes I fixed (important learning)
 
 ### 1. `movie` vs `movies` inside `.map()`
@@ -801,6 +927,22 @@ For `/summary`:
 
 If those branches are swapped, redirects go to the wrong page.
 
+### 15. Missing `}` on `loadMovies`
+
+I forgot to close `loadMovies` before `useEffect`.
+
+Then `useEffect` was inside `loadMovies`, and `AppContent` broke.
+
+Every `function ... {` needs a matching `}` before the next function.
+
+### 16. CSS classes written but not used on JSX
+
+I created `Contact.css` with `.contact-form`, `.contact-input`, and other classes, and imported the file.
+
+But the form / inputs had no matching `className`s, so the styles did not show.
+
+Fix: add the same names in JSX, for example `className="contact-form"` and `className="contact-input"`.
+
 ## Git and GitHub (what I learned)
 
 - `git init`, `git add .`, `git commit`, `git push` to upload code
@@ -817,11 +959,12 @@ That means: take GitHub changes first, put my commits on top, then push.
 
 ```
 public/
+  movies.json             → movie list loaded with fetch
   posters/
     download.jpg          → movie poster image(s)
   favicon.svg
 src/
-  App.tsx                 → BrowserRouter + AppContent (state, routes, navigate)
+  App.tsx                 → BrowserRouter + AppContent (fetch movies, state, routes)
   App.css                 → main section / grid / Clear-Reset buttons
   main.tsx                → starts React and mounts App
   components/
@@ -829,9 +972,10 @@ src/
     NavBar.css            → navbar styles
     Footer.tsx            → footer with Link
     Footer.css            → footer styles
-    Home.tsx              → home page (movie list)
+    Home.tsx              → home page (loading / error / movie list)
     About.tsx             → about page
-    Contact.tsx           → contact page
+    Contact.tsx           → contact form (controlled inputs)
+    Contact.css           → contact form styles
     Seats.tsx             → seat grid (toggle select) + Continue
     Seats.css             → black and white seat styles
     Summary.tsx           → booking summary + confirm
@@ -848,13 +992,13 @@ npm run dev
 
 Then open the local URL (usually `http://localhost:5173`).
 
+You can also open the raw data at: `http://localhost:5173/movies.json`
+
 ## Next learning steps
 
-1. Unique movie titles (not the same movie 3 times)
-2. Rename `gender` → `genre` in data, types, and props
-3. Fix poster path to `/posters/download.jpg` if images do not load
-4. `useEffect` + `fetch` (load data)
-5. Optional later: Node.js backend
+1. Node.js + Express backend (`GET /movies`, later `POST /bookings`)
+2. Point React `fetch` at the API instead of `movies.json`
+3. Optional: form validation (required fields / email check) before Send
 
 ## Stack
 

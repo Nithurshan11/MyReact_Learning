@@ -12,12 +12,27 @@ type Movie = {
 type HomeProps = {
   movies: Movie[];
   bookedMovie: string;
+  isLoading: boolean;
+  error: string;
   onClear: () => void;
   onReset: () => void;
   onBook: (movieName: string) => void;
 };
 
 function Home(props: HomeProps) {
+
+    if(props.isLoading){
+
+        return(
+            <main className="main-section">Loading movies...</main>
+        );
+    }
+
+    if(props.error !== ''){
+        return(
+            <main className="main-section"><p>{props.error}</p></main>
+        )
+    }
   return (
     <main className="main-section">
       <p className="movie-count">Total Movies: {props.movies.length}</p>

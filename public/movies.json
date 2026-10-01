@@ -13,7 +13,7 @@
       "rating": 8.8,
       "genre": "Sci-Fi",
       "actors": ["Leonardo DiCaprio", "Joseph Gordon-Levitt"],
-      "poster": "/posters/download.jpg"
+      "poster": "/posters/img2.webp"
     },
     {
       "id": 3,
@@ -21,7 +21,7 @@
       "rating": 8.6,
       "genre": "Sci-Fi",
       "actors": ["Matthew McConaughey", "Anne Hathaway"],
-      "poster": "/posters/download.jpg"
+      "poster": "/posters/img3.webp"
     },
     {
       "id": 4,
@@ -29,6 +29,6 @@
       "rating": 8.5,
       "genre": "Drama",
       "actors": ["Hugh Jackman", "Christian Bale"],
-      "poster": "/posters/download.jpg"
+      "poster": "/posters/img4.webp"
     }
   ]
